@@ -4,7 +4,7 @@ import { verifyAccessToken } from "@/lib/auth";
 const protectedRoutes = ["/create-report", "/profile"];
 const adminRoutes = ["/admin"];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check admin routes
@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    const payload = verifyAccessToken(token);
+    const payload = await verifyAccessToken(token);
     if (!payload || payload.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", request.url));
     }
@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    const payload = verifyAccessToken(token);
+    const payload = await verifyAccessToken(token);
     if (!payload) {
       return NextResponse.redirect(new URL("/login", request.url));
     }

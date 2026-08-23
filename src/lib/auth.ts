@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify, type JWTPayload } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { db } from "./db";
@@ -6,8 +6,8 @@ import { users, refreshTokens } from "./db/schema";
 import { eq, and, gt } from "drizzle-orm";
 import type { UserPayload, TokenPair } from "@/types";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const REFRESH_SECRET = process.env.REFRESH_SECRET!;
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+const REFRESH_SECRET = new TextEncoder().encode(process.env.REFRESH_SECRET!);
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
 const REFRESH_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000;
@@ -23,25 +23,43 @@ export async function comparePassword(
   return bcrypt.compare(password, hash);
 }
 
-export function generateAccessToken(payload: UserPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+export async function generateAccessToken(
+  payload: UserPayload
+): Promise<string> {
+  return new SignJWT(payload as unknown as JWTPayload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(ACCESS_TOKEN_EXPIRY)
+    .sign(JWT_SECRET);
 }
 
-export function generateRefreshToken(payload: UserPayload): string {
-  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
+export async function generateRefreshToken(
+  payload: UserPayload
+): Promise<string> {
+  return new SignJWT(payload as unknown as JWTPayload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(REFRESH_TOKEN_EXPIRY)
+    .sign(REFRESH_SECRET);
 }
 
-export function verifyAccessToken(token: string): UserPayload | null {
+export async function verifyAccessToken(
+  token: string
+): Promise<UserPayload | null> {
   try {
-    return jwt.verify(token, JWT_SECRET) as UserPayload;
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    return payload as unknown as UserPayload;
   } catch {
     return null;
   }
 }
 
-export function verifyRefreshToken(token: string): UserPayload | null {
+export async function verifyRefreshToken(
+  token: string
+): Promise<UserPayload | null> {
   try {
-    return jwt.verify(token, REFRESH_SECRET) as UserPayload;
+    const { payload } = await jwtVerify(token, REFRESH_SECRET);
+    return payload as unknown as UserPayload;
   } catch {
     return null;
   }
@@ -58,8 +76,8 @@ export async function generateTokens(user: {
     role: user.role,
   };
 
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = generateRefreshToken(payload);
+  const accessToken = await generateAccessToken(payload);
+  const refreshToken = await generateRefreshToken(payload);
 
   // Store refresh token in DB
   await db.insert(refreshTokens).values({
@@ -106,7 +124,7 @@ export async function getUserIdFromRequest(): Promise<string | null> {
 
   if (!token) return null;
 
-  const payload = verifyAccessToken(token);
+  const payload = await verifyAccessToken(token);
   return payload?.id ?? null;
 }
 
@@ -122,7 +140,7 @@ export async function getCurrentUser(): Promise<UserPayload | null> {
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<string | null> {
-  const payload = verifyRefreshToken(refreshToken);
+  const payload = await verifyRefreshToken(refreshToken);
   if (!payload) return null;
 
   // Check if refresh token exists in DB and is not expired

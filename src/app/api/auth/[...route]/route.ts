@@ -243,6 +243,47 @@ export async function POST(
   }
 }
 
+async function verify(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get("token");
+
+    if (!token) {
+      return NextResponse.json(
+        { error: { message: "Token required", code: 400 } },
+        { status: 400 }
+      );
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.verificationToken, token))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: { message: "Invalid token", code: 400 } },
+        { status: 400 }
+      );
+    }
+
+    await db
+      .update(users)
+      .set({ emailVerified: true, verificationToken: null })
+      .where(eq(users.id, user.id));
+
+    return NextResponse.redirect(
+      new URL("/login?verified=true", request.url)
+    );
+  } catch (error) {
+    console.error("Verify error:", error);
+    return NextResponse.redirect(
+      new URL("/login?error=verification_failed", request.url)
+    );
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ route: string[] }> }
@@ -253,6 +294,8 @@ export async function GET(
   switch (action) {
     case "me":
       return me();
+    case "verify":
+      return verify(request);
     default:
       return NextResponse.json(
         { error: { message: "Not found", code: 404 } },

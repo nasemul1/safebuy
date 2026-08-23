@@ -27,57 +27,56 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
+      <div className="flex justify-center py-24">
+        <LoadingSpinner size="md" />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <p className="text-slate-500">Not authenticated</p>
+      <div className="max-w-xl mx-auto px-5 py-24 text-center">
+        <p className="text-sm text-zinc-500">Not authenticated</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Profile</h1>
+    <div className="max-w-xl mx-auto px-5 py-10">
+      <h1 className="text-lg font-semibold text-zinc-900 mb-6">Profile</h1>
       <Card>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-slate-500">Name</label>
-              <p className="text-slate-900">{user.name}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-500">Email</label>
-              <p className="text-slate-900">{user.email}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-500">Role</label>
-              <p className="text-slate-900">{user.role}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-500">
-                Reputation Score
-              </label>
-              <p className="text-2xl font-bold text-blue-600">
-                {user.reputationScore}
-              </p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-slate-500">
-                Member Since
-              </label>
-              <p className="text-slate-900">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+        <CardContent className="space-y-4">
+          <Field label="Name" value={user.name} />
+          <Field label="Email" value={user.email} />
+          <Field
+            label="Role"
+            value={user.role.charAt(0) + user.role.slice(1).toLowerCase()}
+          />
+          <div>
+            <p className="text-xs text-zinc-400 mb-1">Reputation</p>
+            <p className="text-2xl font-bold tabular-nums text-accent">
+              {user.reputationScore}
+            </p>
           </div>
+          <Field
+            label="Member since"
+            value={new Date(user.createdAt).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          />
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-zinc-400 mb-0.5">{label}</p>
+      <p className="text-sm font-medium text-zinc-900">{value}</p>
     </div>
   );
 }

@@ -42,36 +42,41 @@ export function CommentSection({ reportId }: { reportId: string }) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">
+      <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-400 mb-4">
         Comments ({total})
       </h2>
 
       <CommentForm reportId={reportId} onCommentAdded={handleCommentAdded} />
 
       {loading ? (
-        <div className="flex justify-center py-8">
-          <LoadingSpinner />
+        <div className="flex justify-center py-10">
+          <LoadingSpinner size="sm" />
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-slate-500 py-4">
-          No comments yet. Be the first to comment.
+        <p className="text-sm text-zinc-400 py-6">
+          No comments yet. Be the first to share your thoughts.
         </p>
       ) : (
-        <div className="space-y-4 mt-4">
+        <div className="space-y-3 mt-4">
           {comments.map((comment) => (
             <div
               key={comment.id}
-              className="bg-slate-50 rounded-lg p-4"
+              className="bg-zinc-50 border border-zinc-100 rounded-lg px-4 py-3"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium text-slate-900 text-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-zinc-900">
                   {comment.user.name}
                 </span>
-                <span className="text-xs text-slate-500">
-                  {new Date(comment.createdAt).toLocaleDateString()}
+                <span className="text-[11px] text-zinc-400">
+                  {new Date(comment.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </span>
               </div>
-              <p className="text-sm text-slate-700">{comment.content}</p>
+              <p className="text-sm text-zinc-600 leading-relaxed">
+                {comment.content}
+              </p>
             </div>
           ))}
           <Pagination

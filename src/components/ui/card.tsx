@@ -5,16 +5,22 @@ interface CardProps {
 
 export function Card({ children, className = "" }: CardProps) {
   return (
-    <div className={`bg-white rounded-xl border border-slate-200 shadow-sm ${className}`}>
+    <div
+      className={`bg-white rounded-xl border border-zinc-200/80 ${className}`}
+    >
       {children}
     </div>
   );
 }
 
 export function CardHeader({ children, className = "" }: CardProps) {
-  return <div className={`p-6 border-b border-slate-200 ${className}`}>{children}</div>;
+  return (
+    <div className={`px-6 py-4 border-b border-zinc-100 ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 export function CardContent({ children, className = "" }: CardProps) {
-  return <div className={`p-6 ${className}`}>{children}</div>;
+  return <div className={`px-6 py-5 ${className}`}>{children}</div>;
 }

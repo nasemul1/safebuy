@@ -27,84 +27,100 @@ export function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-slate-900">SafeBuy</span>
-            <span className="text-sm text-slate-500">Forum</span>
-          </Link>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/reports"
-              className={`text-sm font-medium ${
-                pathname === "/reports"
-                  ? "text-blue-600"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+    <nav className="sticky top-0 z-50 border-b border-zinc-200/60 bg-white/70 backdrop-blur-xl">
+      <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              Reports
-            </Link>
-
-            {loading ? (
-              <div className="h-8 w-20 bg-slate-100 rounded animate-pulse" />
-            ) : user ? (
-              <>
-                <Link
-                  href="/create-report"
-                  className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                >
-                  Report Fraud
-                </Link>
-                <Link
-                  href="/profile"
-                  className={`text-sm font-medium ${
-                    pathname === "/profile"
-                      ? "text-blue-600"
-                      : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  Profile
-                </Link>
-                {user.role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    className={`text-sm font-medium ${
-                      pathname.startsWith("/admin")
-                        ? "text-blue-600"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    Admin
-                  </Link>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-slate-600 hover:text-slate-900"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                >
-                  Register
-                </Link>
-              </>
-            )}
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
           </div>
+          <span className="text-sm font-semibold tracking-tight text-zinc-900 group-hover:text-accent transition-colors">
+            SafeBuy
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-1">
+          <NavLink href="/reports" active={pathname === "/reports"}>
+            Reports
+          </NavLink>
+
+          {loading ? (
+            <div className="h-8 w-16 rounded-md bg-zinc-100 animate-pulse" />
+          ) : user ? (
+            <>
+              <NavLink
+                href="/create-report"
+                active={pathname === "/create-report"}
+              >
+                Report
+              </NavLink>
+              <NavLink href="/profile" active={pathname === "/profile"}>
+                Profile
+              </NavLink>
+              {user.role === "ADMIN" && (
+                <NavLink
+                  href="/admin"
+                  active={pathname.startsWith("/admin")}
+                >
+                  Admin
+                </NavLink>
+              )}
+              <div className="w-px h-4 bg-zinc-200 mx-1" />
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center h-8 px-3 text-xs font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink href="/login" active={pathname === "/login"}>
+                Sign in
+              </NavLink>
+              <Link
+                href="/register"
+                className="inline-flex items-center h-8 px-3.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-md transition-colors ml-1"
+              >
+                Get started
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>
+  );
+}
+
+function NavLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex items-center h-8 px-3 text-xs font-medium rounded-md transition-colors ${
+        active
+          ? "text-accent bg-accent-light"
+          : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100"
+      }`}
+    >
+      {children}
+    </Link>
   );
 }

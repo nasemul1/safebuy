@@ -20,7 +20,10 @@ interface Report {
   evidence: { id: string; url: string; type: string }[];
 }
 
-const statusColors: Record<string, "warning" | "info" | "success" | "danger"> = {
+const statusColors: Record<
+  string,
+  "warning" | "info" | "success" | "danger"
+> = {
   PENDING: "warning",
   UNDER_REVIEW: "info",
   VERIFIED: "success",
@@ -42,65 +45,100 @@ export default function ReportDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
+      <div className="flex justify-center py-24">
+        <LoadingSpinner size="md" />
       </div>
     );
   }
 
   if (!report) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
-        <p className="text-slate-500">Report not found</p>
+      <div className="max-w-3xl mx-auto px-5 py-24 text-center">
+        <div className="w-12 h-12 rounded-xl bg-zinc-100 flex items-center justify-center mx-auto mb-4">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="text-zinc-400"
+          >
+            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <p className="text-sm text-zinc-500 font-medium">Report not found</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <Badge variant={statusColors[report.status] || "default"}>
+    <div className="max-w-3xl mx-auto px-5 py-10">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Badge variant={statusColors[report.status] || "default"} dot>
             {report.status.replace("_", " ")}
           </Badge>
-          <span className="text-sm text-slate-500">{report.platform}</span>
+          <span className="text-xs text-zinc-400">{report.platform}</span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 mb-2">
           {report.title}
         </h1>
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <span>Reported by {report.user.name}</span>
-          <span>&middot;</span>
-          <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
+          <span className="font-medium text-zinc-600">{report.user.name}</span>
+          <span className="text-zinc-200">&middot;</span>
+          <span>
+            Rep: {report.user.reputationScore}
+          </span>
+          <span className="text-zinc-200">&middot;</span>
+          <span>
+            {new Date(report.createdAt).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
+          </span>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">
-          {report.sellerName}
-        </h2>
+      {/* Seller info */}
+      <div className="bg-white border border-zinc-200/80 rounded-xl mb-6">
+        <div className="px-5 py-4 border-b border-zinc-100">
+          <h2 className="text-sm font-semibold text-zinc-900">
+            {report.sellerName}
+          </h2>
+        </div>
         {report.sellerUrl && (
-          <a
-            href={report.sellerUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:underline mb-4 block"
-          >
-            {report.sellerUrl}
-          </a>
+          <div className="px-5 py-3 border-b border-zinc-50">
+            <a
+              href={report.sellerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-accent hover:text-accent-hover transition-colors break-all"
+            >
+              {report.sellerUrl}
+            </a>
+          </div>
         )}
-        <p className="text-slate-700 whitespace-pre-wrap">
-          {report.description}
-        </p>
+        <div className="px-5 py-4">
+          <p className="text-sm text-zinc-600 whitespace-pre-wrap leading-relaxed">
+            {report.description}
+          </p>
+        </div>
       </div>
 
+      {/* Evidence */}
       {report.evidence.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-3">Evidence</h2>
+          <h2 className="text-xs font-medium uppercase tracking-widest text-zinc-400 mb-3">
+            Evidence
+          </h2>
           <EvidenceGallery evidence={report.evidence} />
         </div>
       )}
 
+      {/* Comments */}
       <CommentSection reportId={report.id} />
     </div>
   );

@@ -47,11 +47,11 @@ export function CommentForm({ reportId, onCommentAdded }: CommentFormProps) {
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        placeholder="Add a comment..."
+        placeholder="Share your thoughts..."
         rows={3}
       />
       <Button type="submit" loading={loading} size="sm">
-        Post Comment
+        Post comment
       </Button>
     </form>
   );

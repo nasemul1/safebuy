@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { gooeyToast } from "goey-toast";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,7 @@ export default function LoginPage() {
         return;
       }
 
-      gooeyToast.success("Logged in successfully");
+      gooeyToast.success("Welcome back");
       router.push("/");
       router.refresh();
     } catch {
@@ -44,15 +44,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-slate-900 text-center mb-8">
-          Login to SafeBuy
-        </h1>
+    <div className="min-h-[80vh] flex items-center justify-center px-5">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-xl font-semibold text-zinc-900 mb-1">
+            Sign in to SafeBuy
+          </h1>
+          <p className="text-sm text-zinc-500">
+            Access your fraud reports and community
+          </p>
+        </div>
 
         {verified && (
-          <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
-            Email verified! You can now login.
+          <div className="mb-4 px-3 py-2 bg-accent-light text-accent text-sm rounded-lg font-medium">
+            Email verified. You can now sign in.
           </div>
         )}
 
@@ -60,6 +65,7 @@ export default function LoginPage() {
           <Input
             label="Email"
             type="email"
+            placeholder="you@example.com"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             required
@@ -67,22 +73,40 @@ export default function LoginPage() {
           <Input
             label="Password"
             type="password"
+            placeholder="Enter your password"
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             required
           />
           <Button type="submit" loading={loading} className="w-full">
-            Login
+            Sign in
           </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-zinc-500">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register
+          <Link
+            href="/register"
+            className="font-medium text-accent hover:text-accent-hover transition-colors"
+          >
+            Create one
           </Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[80vh] flex items-center justify-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
